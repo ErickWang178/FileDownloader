@@ -1,4 +1,4 @@
-package com.erick.filedownloader;
+package com.erick.activity;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

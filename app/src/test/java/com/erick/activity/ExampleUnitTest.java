@@ -1,4 +1,4 @@
-package com.erick.filedownloader;
+package com.erick.activity;
 
 import org.junit.Test;
 

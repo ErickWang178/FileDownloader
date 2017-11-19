@@ -17,7 +17,7 @@
 
         android:id="@+id/path"
 
-        android:text="http://www.winrar.com.cn/download/wrar380sc.exe"
+        android:text="http://192.168.56.1:8080/test/bbb.mp4"
 
         android:layout_width="fill_parent"
 

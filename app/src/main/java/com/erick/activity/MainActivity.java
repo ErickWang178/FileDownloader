@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +18,8 @@ import com.erick.listener.DownloadProgressListener;
 import com.erick.network.FileDownloader;
 
 public class MainActivity extends Activity {
+    private static String TAG = "MainActivity";
+
     private EditText downloadpathText;
     private TextView resultView;
     private ProgressBar progressBar;
@@ -65,11 +68,14 @@ public class MainActivity extends Activity {
                 // TODO Auto-generated method stub
                 String path = downloadpathText.getText().toString();
                 System.out.println(Environment.getExternalStorageState()+"------"+Environment.MEDIA_MOUNTED);
+                Log.d(TAG, "onClick: " + Environment.getExternalStorageState()+"------"+Environment.MEDIA_MOUNTED);
 
                 if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-                    download(path, Environment.getExternalStorageDirectory());
+                    download(path, Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
+                    Log.d(TAG, "onClick: 文件存储位置：" +  Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS));
                 }else{
                     Toast.makeText(MainActivity.this, R.string.sdcarderror, Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onClick: " + getString(R.string.sdcarderror));
                 }
             }
         });

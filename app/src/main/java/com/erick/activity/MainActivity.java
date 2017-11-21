@@ -2,9 +2,14 @@ package com.erick.activity;
 
 import java.io.File;
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +21,7 @@ import android.widget.Toast;
 
 import com.erick.listener.DownloadProgressListener;
 import com.erick.network.FileDownloader;
+import com.erick.service.FileService;
 
 public class MainActivity extends Activity {
     private static String TAG = "MainActivity";
@@ -23,6 +29,7 @@ public class MainActivity extends Activity {
     private EditText downloadpathText;
     private TextView resultView;
     private ProgressBar progressBar;
+    private FileService.DownloadBinder mService;
 
     /**
      * 当Handler被创建会关联到创建它的当前线程的消息队列，该类用于往消息队列发送消息
@@ -61,11 +68,13 @@ public class MainActivity extends Activity {
         resultView = (TextView) this.findViewById(R.id.resultView);
         Button button = (Button) this.findViewById(R.id.button);
 
+        Intent intent = new Intent(this,FileService.class);
+        bindService(intent,mConn, Context.BIND_AUTO_CREATE);
+
         button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 String path = downloadpathText.getText().toString();
                 System.out.println(Environment.getExternalStorageState()+"------"+Environment.MEDIA_MOUNTED);
                 Log.d(TAG, "onClick: " + Environment.getExternalStorageState()+"------"+Environment.MEDIA_MOUNTED);
@@ -81,6 +90,18 @@ public class MainActivity extends Activity {
         });
     }
 
+    private ServiceConnection mConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mService = (FileService.DownloadBinder) service;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+        }
+    };
+
     /**
      * 主线程(UI线程)
      * 对于显示控件的界面更新只是由UI线程负责，如果是在非UI线程更新控件的属性值，更新后的显示界面不会反映到屏幕上
@@ -91,7 +112,7 @@ public class MainActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                FileDownloader loader = new FileDownloader(MainActivity.this, path, savedir, 3);
+                FileDownloader loader = new FileDownloader(MainActivity.this, mService,path, savedir, 3);
                 progressBar.setMax(loader.getFileSize());//设置进度条的最大刻度为文件的长度
 
                 try {
@@ -109,5 +130,11 @@ public class MainActivity extends Activity {
                 }
             }
         }).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mConn);
     }
 }

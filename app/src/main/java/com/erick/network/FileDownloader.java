@@ -18,7 +18,6 @@ import com.erick.service.FileService;
 public class FileDownloader {
     private static final String TAG = "FileDownloader";
     private Context context;
-    private FileService fileService;
 
     /* 已下载文件长度 */
     private int downloadSize = 0;
@@ -40,6 +39,7 @@ public class FileDownloader {
 
     /* 下载路径  */
     private String downloadUrl;
+    private FileService.DownloadBinder mService;
 
     /**
      * 获取线程数
@@ -70,7 +70,7 @@ public class FileDownloader {
      */
     protected synchronized void update(int threadId, int pos) {
         this.data.put(threadId, pos);
-        this.fileService.update(this.downloadUrl, this.data);
+        mService.update(this.downloadUrl, this.data);
     }
 
 
@@ -87,15 +87,14 @@ public class FileDownloader {
 
      */
 
-    public FileDownloader(Context context, String downloadUrl, File fileSaveDir, int threadNum) {
+    public FileDownloader(Context context, FileService.DownloadBinder service,String downloadUrl, File fileSaveDir, int threadNum) {
 
         try {
 
             this.context = context;
 
             this.downloadUrl = downloadUrl;
-
-            fileService = new FileService(this.context);
+            mService = service;
 
             URL url = new URL(this.downloadUrl);
 
@@ -141,7 +140,7 @@ public class FileDownloader {
 
                 this.saveFile = new File(fileSaveDir, filename);//构建保存文件
 
-                Map<Integer, Integer> logdata = fileService.getData(downloadUrl);//获取下载记录
+                Map<Integer, Integer> logdata = mService.getData(downloadUrl);//获取下载记录
 
 
 
@@ -311,7 +310,7 @@ public class FileDownloader {
 
 
 
-            this.fileService.save(this.downloadUrl, this.data);
+            mService.save(this.downloadUrl, this.data);
 
             boolean notFinish = true;//下载未完成
 
@@ -355,7 +354,7 @@ public class FileDownloader {
 
 
 
-            fileService.delete(this.downloadUrl);
+            mService.delete(this.downloadUrl);
 
         } catch (Exception e) {
 
@@ -436,5 +435,4 @@ public class FileDownloader {
         Log.i(TAG, msg);
 
     }
-
 }

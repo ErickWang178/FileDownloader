@@ -29,7 +29,8 @@ public class MainActivity extends Activity {
     private EditText downloadpathText;
     private TextView resultView;
     private ProgressBar progressBar;
-    private FileService.DownloadBinder mService;
+    private FileService mService;
+    private boolean isDownloading = false;
 
     /**
      * 当Handler被创建会关联到创建它的当前线程的消息队列，该类用于往消息队列发送消息
@@ -93,7 +94,7 @@ public class MainActivity extends Activity {
     private ServiceConnection mConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            mService = (FileService.DownloadBinder) service;
+            mService = ((FileService.DownloadBinder) service).getService();
         }
 
         @Override

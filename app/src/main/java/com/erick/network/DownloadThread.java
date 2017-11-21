@@ -29,6 +29,9 @@ public class DownloadThread extends Thread {
         this.downLength = downLength;
     }
 
+    /**
+     * 每个线程只负责一个数据块，如果本数据块下载完成，则线程结束
+     */
     @Override
     public void run() {
         if(downLength < block){//未下载完成
@@ -58,6 +61,8 @@ public class DownloadThread extends Thread {
                     downLength += offset;
                     downloader.update(this.threadId, downLength);
                     downloader.append(offset);
+
+                    Log.i(TAG, "Thread " + this.threadId + " download:"+ downLength);
                 }
 
                 threadfile.close();
@@ -65,14 +70,16 @@ public class DownloadThread extends Thread {
                 print("Thread " + this.threadId + " download finish");
                 this.finish = true;
             } catch (Exception e) {
+
                 this.downLength = -1;
                 print("Thread "+ this.threadId+ ":"+ e);
+                e.printStackTrace();
             }
         }
     }
 
     private static void print(String msg){
-        Log.i(TAG, msg);
+        Log.d(TAG, msg);
     }
 
     /**
@@ -89,4 +96,6 @@ public class DownloadThread extends Thread {
      */
     public long getDownLength() {
         return downLength;
-    }}
+    }
+
+}
